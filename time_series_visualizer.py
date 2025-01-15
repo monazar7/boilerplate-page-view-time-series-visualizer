@@ -5,14 +5,16 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 # Import data (Make sure to parse dates. Consider setting index column to 'date'.)
-df = None
+df = pd.read_csv('fcc-forum-pageviews.csv', parse_dates=['date'], index_col='date')
 
 # Clean data
-df = None
+df = df[(df['value'] >= df['value'].quantile(0.025)) & (df['value'] <= df['value'].quantile(0.975))]
 
 
 def draw_line_plot():
     # Draw line plot
+    fig, ax = plt.subplots(figsize=(12, 6)) ax.plot(df.index, df['value'], color='blue', linewidth=1)
+    
 
 
 
@@ -24,9 +26,10 @@ def draw_line_plot():
 
 def draw_bar_plot():
     # Copy and modify data for monthly bar plot
-    df_bar = None
+    df_bar = df.groupby(['year', 'month'])['value'].mean().unstack()
 
     # Draw bar plot
+    fig = df_bar.plot(kind='bar', figsize=(12, 6), legend=True, xlabel='Years', ylabel='Average Page Views').figure plt.legend(title='Months', labels=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']) plt.title('Average Daily Page Views per Month')
 
 
 
@@ -44,6 +47,8 @@ def draw_box_plot():
     df_box['month'] = [d.strftime('%b') for d in df_box.date]
 
     # Draw box plots (using Seaborn)
+    fig, axes = plt.subplots(1, 2, figsize=(15, 6))
+    # Year-wise Box Plot (Trend) sns.boxplot(x='year', y='value', data=df, ax=axes[0]) axes[0].set_title('Year-wise Box Plot (Trend)') axes[0].set_xlabel('Year') axes[0].set_ylabel('Page Views') # Month-wise Box Plot (Seasonality) sns.boxplot(x='month', y='value', data=df, ax=axes[1], order=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']) axes[1].set_title('Month-wise Box Plot (Seasonality)') axes[1].set_xlabel('Month') axes[1].set_ylabel('Page Views')
 
 
 
